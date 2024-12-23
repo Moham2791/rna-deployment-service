@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  // State to store the list of keys and the selected key
+  // State to store the list of keys, availability status, and selected key
   const [keys, setKeys] = useState([]);
   const [selectedKey, setSelectedKey] = useState('');
   const [response, setResponse] = useState('');
@@ -15,7 +15,7 @@ function App() {
       try {
         setLoading(true);
         const result = await axios.get('/api/storage/keys');
-        setKeys(result.data);
+        setKeys(result.data);  // Assuming the response contains the keys
       } catch (error) {
         console.error('Error fetching keys:', error);
       } finally {
@@ -29,7 +29,7 @@ function App() {
   // Handle form submission (POST request)
   const handleSubmit = async () => {
     if (!selectedKey) {
-      setResponse('Please select a key from the dropdown.');
+      setResponse('Please select a key from the options.');
       return;
     }
 
@@ -53,20 +53,16 @@ function App() {
         <p>Loading...</p>
       ) : (
         <div>
-          <div>
-            <label htmlFor="key-dropdown">Select Project:</label>
-            <select
-              id="key-dropdown"
-              value={selectedKey}
-              onChange={(e) => setSelectedKey(e.target.value)}
-            >
-              <option value="">--Select--</option>
-              {keys.map((key) => (
-                <option key={key} value={key}>
-                  {key}
-                </option>
-              ))}
-            </select>
+          <div className="options-container">
+            {keys.map((key, index) => (
+              <div
+                key={index}
+                className={`option ${key.status === 'available' ? 'available' : 'unavailable'}`}
+                onClick={() => key.status === 'available' && setSelectedKey(key.name)}
+              >
+                {key.name}
+              </div>
+            ))}
           </div>
 
           <button onClick={handleSubmit}>Submit Request</button>
